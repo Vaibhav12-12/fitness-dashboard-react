@@ -14,18 +14,30 @@ const CalorieTracker = () => {
   }, [foods]);
 
   // Delete Food
-  const deleteFood = (index) => {
-    const updatedFoods = foods.filter((_, i) => i !== index);
+  const deleteFood = (id) => {
+    const updatedFoods = foods.filter((item) => item.id !== id);
     setFoods(updatedFoods);
   };
 
   const logFood = () => {
-    if (food && calories) {
-      const newFood = { food, calories };
+    if (food.trim() && calories > 0 && calories <= 5000) {
+      const newFood = { id: Date.now(), food: food.trim(), calories };
       setFoods([...foods, newFood]);
       setFood('');
       setCalories(0);
     }
+  };
+
+  const handleCaloriesChange = (e) => {
+    const value = Number(e.target.value);
+    if (!isNaN(value)) {
+      setCalories(value);
+    }
+  };
+
+  const clearAll = () => {
+    localStorage.removeItem('foods');
+    setFoods([]);
   };
 
   return (
@@ -42,17 +54,19 @@ const CalorieTracker = () => {
       <input
         type="number"
         placeholder="Calories"
-        value={calories}
-        onChange={(e) => setCalories(Number(e.target.value))}
+        value={calories || ''}
+        onChange={handleCaloriesChange}
       />
 
       <button onClick={logFood}>Log Food</button>
 
+      <button onClick={clearAll}>Clear All</button>
+
       <ul>
-        {foods.map((entry, index) => (
-          <li key={index}>
+        {foods.map((entry) => (
+          <li key={entry.id}>
             {entry.food}: {entry.calories} calories
-            <button onClick={() => deleteFood(index)}>Delete</button>
+            <button onClick={() => deleteFood(entry.id)}>Delete</button>
           </li>
         ))}
       </ul>
